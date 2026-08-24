@@ -37,7 +37,7 @@ pipeline {
                     sh """
                         git pull origin homol
                         docker compose up -d --build
-                        docker compose exec -T api alembic upgrade head
+                       
                     """
                 }
             }
