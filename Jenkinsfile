@@ -6,7 +6,7 @@ pipeline {
         SERVICE_NAME = 'api' 
         
         // Caminho do projeto no seu servidor local (Homologação)
-        HOMOL_PATH = '/opt/projetos/meu-site-homol'
+        HOMOL_PATH = '/home/bessaz/meu-site-homol'
         
         // Dados do Hostinger (Produção)
         HOSTINGER_USER = 'seu_usuario'
