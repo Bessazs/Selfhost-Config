@@ -2,6 +2,7 @@ pipeline {
     agent any
 
     environment {
+        ANSIBLE_HOST_KEY_CHECKING = 'False'
         REGISTRY = 'ghcr.io'
         IMAGE_NAME = 'bessazs/selfhostconfig'
         IMAGE_TAG = "homolog-${BUILD_NUMBER}-${GIT_COMMIT[0..7]}"
