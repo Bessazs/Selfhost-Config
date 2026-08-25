@@ -6,7 +6,7 @@ pipeline {
         IMAGE_NAME = 'bessazs/selfhostConfig'
         IMAGE_TAG = "homolog-${BUILD_NUMBER}-${GIT_COMMIT[0..7]}"
     }
-
+ 
     stages {
         stage('Checkout') {
             steps {
