@@ -48,14 +48,16 @@ pipeline {
                 branch 'homol'
             }
             steps {
-                ansiblePlaybook(
-                    playbook: 'ansible/playbooks/deploy.yml',
-                    inventory: 'ansible/inventory.ini',
-                    credentialsId: 'SSH_ANSIBLE_KEY',
-                    extraVars: [
-                        registry_image: "${REGISTRY}/${IMAGE_NAME}",
-                        image_tag: "${IMAGE_TAG}",
-                        env_target: "homologation"
+                withCredentials([string(credentialsId: 'SUDO_PASS', variable: 'SUDO_PASSWORD')])
+                    ansiblePlaybook(
+                        playbook: 'ansible/playbooks/deploy.yml',
+                        inventory: 'ansible/inventory.ini',
+                        credentialsId: 'SSH_ANSIBLE_KEY',
+                        extraVars: [
+                            registry_image: "${REGISTRY}/${IMAGE_NAME}",
+                            image_tag: "${IMAGE_TAG}",
+                            env_target: "homologation"
+                            ansible_become_password: "${SUDO_PASSWORD}"
                     ]
                 )
             }
