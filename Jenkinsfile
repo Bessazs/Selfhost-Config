@@ -3,7 +3,7 @@ pipeline {
 
     environment {
         REGISTRY = 'ghcr.io'
-        IMAGE_NAME = 'bessazs/selfhostConfig'
+        IMAGE_NAME = 'bessazs/selfhostconfig'
         IMAGE_TAG = "homolog-${BUILD_NUMBER}-${GIT_COMMIT[0..7]}"
     }
  
