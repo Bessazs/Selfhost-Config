@@ -50,9 +50,9 @@ pipeline {
             steps {
                 withCredentials([
                     string(credentialsId: 'SUDO_PASS', variable: 'SUDO_PASSWORD'),
-                    usernamePassword(credentialsId: 'REGISTRY_CREDS', usernameVariable: 'REG_USER', passwordVariable: 'REG_PASS')
-        ])
-                {
+                    usernamePassword(credentialsId: 'REGISTRY_CREDS', usernameVariable: 'REG_USER', passwordVariable: 'REG_PASS',
+                    file(credentialsId: 'HOMOLOG_ENV_FILE', variable: 'ENV_FILE_PATH')
+        ]))     {
                     ansiblePlaybook(
                         playbook: 'ansible/playbooks/deploy.yml',
                         inventory: 'ansible/inventory.ini',
@@ -64,7 +64,8 @@ pipeline {
                             ansible_become_password: '${SUDO_PASSWORD}',        
                             registry_url: "${REGISTRY}",
                             registry_user: '${REG_USER}',
-                            registry_password: '${REG_PASS}'
+                            registry_password: '${REG_PASS}',
+                            env_file_path: "${ENV_FILE_PATH}"
                         ]
                     )
                 }
