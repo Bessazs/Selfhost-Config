@@ -48,7 +48,7 @@ pipeline {
                 branch 'homol'
             }
             steps {
-                withCredentials([string(credentialsId: 'SUDO_PASS', variable: 'SUDO_PASSWORD')])
+                withCredentials([string(credentialsId: 'SUDO_PASS', variable: 'SUDO_PASSWORD')]) {
                     ansiblePlaybook(
                         playbook: 'ansible/playbooks/deploy.yml',
                         inventory: 'ansible/inventory.ini',
