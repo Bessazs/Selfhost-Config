@@ -1,6 +1,6 @@
 ---
 - name: Deploy da aplicacao em Homologacao
-  hosts: homologation
+  hosts: local
   vars:
     project_dir: /opt/advocacia-app-homolog
     registry_image: "{{ registry_image }}"
