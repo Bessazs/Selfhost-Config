@@ -48,8 +48,8 @@ pipeline {
             }
             steps {
                 ansiblePlaybook(
-                    playbook: 'ansible/deploy.yml',
-                    inventory: 'ansible/inventory_homolog.ini',
+                    playbook: 'ansible/playbooks/deploy.yml',
+                    inventory: 'ansible/inventory.ini',
                     credentialsId: 'SSH_ANSIBLE_KEY',
                     extraVars: [
                         registry_image: "${REGISTRY}/${IMAGE_NAME}",
