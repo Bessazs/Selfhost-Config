@@ -56,7 +56,7 @@ pipeline {
                         extraVars: [
                             registry_image: "${REGISTRY}/${IMAGE_NAME}",
                             image_tag: "${IMAGE_TAG}",
-                            env_target: "homologation"
+                            env_target: "homologation",
                             ansible_become_password: "${SUDO_PASSWORD}"
                     ]
                 )
