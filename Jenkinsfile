@@ -1,13 +1,13 @@
 pipeline {
     agent any
-   
+    
     environment {
         ANSIBLE_HOST_KEY_CHECKING = 'False'
         REGISTRY = 'ghcr.io'
         IMAGE_NAME = 'bessazs/selfhostconfig'
         IMAGE_TAG = "homolog-${BUILD_NUMBER}-${GIT_COMMIT[0..7]}"
     }
- 
+
     stages {
         stage('Checkout') {
             steps {
@@ -15,17 +15,17 @@ pipeline {
             }
         }
 
-//        stage('Run Tests') {
-//            when {
-//                branch 'homol'
-//            }
-//            steps {
-//                sh '''
-//                    docker build -t app-test:${IMAGE_TAG} .
-//                    docker run --rm app-test:${IMAGE_TAG} pytest
-//                '''
-//            }
-//      }
+        // stage('Run Tests') {
+        //     when {
+        //         branch 'homol'
+        //     }
+        //     steps {
+        //         sh '''
+        //             docker build -t app-test:${IMAGE_TAG} .
+        //             docker run --rm app-test:${IMAGE_TAG} pytest
+        //         '''
+        //     }
+        // }
 
         stage('Build & Push Image (Homolog)') {
             when {
@@ -58,8 +58,9 @@ pipeline {
                             image_tag: "${IMAGE_TAG}",
                             env_target: "homologation",
                             ansible_become_password: "${SUDO_PASSWORD}"
-                    ]
-                )
+                        ]
+                    )
+                }
             }
         }
     }
