@@ -25,6 +25,12 @@
         cmd: "echo {{ registry_password | quote }} | docker login {{ registry_url }} -u {{ registry_user | quote }} --password-stdin"
       no_log: true
 
+    - name: Copiar arquivo .env para o servidor de homologacao
+      ansible.builtin.copy:
+        src: "{{ env_file_path }}"
+        dest: "{{ project_dir }}/.env"
+        mode: "0600"
+
     - name: Pull das imagens de homologacao
       ansible.builtin.command:
         cmd: docker compose pull
