@@ -50,9 +50,9 @@ pipeline {
             steps {
                 withCredentials([
                     string(credentialsId: 'SUDO_PASS', variable: 'SUDO_PASSWORD'),
-                    usernamePassword(credentialsId: 'REGISTRY_CREDS', usernameVariable: 'REG_USER', passwordVariable: 'REG_PASS',
+                    usernamePassword(credentialsId: 'REGISTRY_CREDS', usernameVariable: 'REG_USER', passwordVariable: 'REG_PASS'),
                     file(credentialsId: 'HOMOLOG_ENV_FILE', variable: 'ENV_FILE_PATH')
-        ]))     {
+        ])     {
                     ansiblePlaybook(
                         playbook: 'ansible/playbooks/deploy.yml',
                         inventory: 'ansible/inventory.ini',
