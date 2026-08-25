@@ -48,7 +48,11 @@ pipeline {
                 branch 'homol'
             }
             steps {
-                withCredentials([string(credentialsId: 'SUDO_PASS', variable: 'SUDO_PASSWORD')]) {
+                withCredentials([
+                    string(credentialsId: 'SUDO_PASS', variable: 'SUDO_PASSWORD'),
+                    usernamePassword(credentialsId: 'REGISTRY_CREDS', usernameVariable: 'REG_USER', passwordVariable: 'REG_PASS')
+        ])
+                {
                     ansiblePlaybook(
                         playbook: 'ansible/playbooks/deploy.yml',
                         inventory: 'ansible/inventory.ini',
@@ -57,7 +61,10 @@ pipeline {
                             registry_image: "${REGISTRY}/${IMAGE_NAME}",
                             image_tag: "${IMAGE_TAG}",
                             env_target: "homologation",
-                            ansible_become_password: '${SUDO_PASSWORD}'
+                            ansible_become_password: '${SUDO_PASSWORD}',        
+                            registry_url: "${REGISTRY}",
+                            registry_user: '${REG_USER}',
+                            registry_password: '${REG_PASS}'
                         ]
                     )
                 }
