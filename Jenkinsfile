@@ -2,72 +2,68 @@ pipeline {
     agent any
 
     environment {
-        // Nome do serviço baseado no seu docker-compose.yml
-        SERVICE_NAME = 'api' 
-        
-        // Caminho do projeto no seu servidor local (Homologação)
-        HOMOL_PATH = '/home/bessaz/meu-site-homol'
-        
-        // Dados do Hostinger (Produção)
-        HOSTINGER_USER = 'seu_usuario'
-        HOSTINGER_IP   = 'ip.do.hostinger'
-        PROD_PATH      = '/caminho/do/projeto/no/hostinger'
+        REGISTRY = 'ghcr.io'
+        IMAGE_NAME = 'bessazs/selfhostConfig'
+        IMAGE_TAG = "homolog-${BUILD_NUMBER}-${GIT_COMMIT[0..7]}"
     }
 
     stages {
-        stage('🧪 Testes Automatizados') {
-            // Este estágio roda em TODAS as branches (main e homol) para garantir a qualidade
+        stage('Checkout') {
             steps {
-                echo "Rodando a suíte de testes (Unitários e Integração)..."
-                // Exemplo prático usando a estrutura do seu projeto[cite: 1]:
-                // sh 'pip install -r requirements-dev.txt'
-                // sh 'pytest tests/' 
+                checkout scm
             }
         }
 
-        stage('🚀 Deploy: Homologação (Servidor Local)') {
-            // Só executa se o commit vier da branch 'homol'
+//        stage('Run Tests') {
+//            when {
+//                branch 'homol'
+//            }
+//            steps {
+//                sh '''
+//                    docker build -t app-test:${IMAGE_TAG} .
+//                    docker run --rm app-test:${IMAGE_TAG} pytest
+//                '''
+//            }
+//      }
+
+        stage('Build & Push Image (Homolog)') {
             when {
                 branch 'homol'
             }
             steps {
-                echo "Atualizando ambiente de Homologação local..."
-                dir("${HOMOL_PATH}") {
-                    // Como o Jenkins está na mesma máquina, executamos o Compose diretamente
-                    sh """
-                        git pull origin homol
-                        docker compose up -d --build
-                       
-                    """
+                withCredentials([usernamePassword(credentialsId: 'REGISTRY_CREDS', usernameVariable: 'REG_USER', passwordVariable: 'REG_PASS')]) {
+                    sh '''
+                        echo "$REG_PASS" | docker login $REGISTRY -u "$REG_USER" --password-stdin
+                        docker build -t $REGISTRY/$IMAGE_NAME:$IMAGE_TAG -t $REGISTRY/$IMAGE_NAME:homolog-latest .
+                        docker push $REGISTRY/$IMAGE_NAME:$IMAGE_TAG
+                        docker push $REGISTRY/$IMAGE_NAME:homolog-latest
+                    '''
                 }
             }
         }
 
-        stage('👑 Deploy: Produção (Hostinger)') {
-            // Só executa se o commit vier da branch 'main'
+        stage('Deploy Homolog via Ansible') {
             when {
-                branch 'main'
+                branch 'homol'
             }
             steps {
-                echo "Conectando ao Hostinger via SSH para atualizar a Produção..."
-                // Usa o plugin SSH Agent para conectar no Hostinger sem expor a senha
-                sshagent(credentials: ['hostinger-ssh-key']) {
-                    sh """
-                        ssh -o StrictHostKeyChecking=no ${HOSTINGER_USER}@${HOSTINGER_IP} '
-                            cd ${PROD_PATH} && \\
-                            git pull origin main && \\
-                            docker compose -f docker-compose.yml up -d --build && \\
-                            docker compose exec -T api alembic upgrade head
-                        '
-                    """
-                }
+                ansiblePlaybook(
+                    playbook: 'ansible/deploy.yml',
+                    inventory: 'ansible/inventory_homolog.ini',
+                    credentialsId: 'SSH_ANSIBLE_KEY',
+                    extraVars: [
+                        registry_image: "${REGISTRY}/${IMAGE_NAME}",
+                        image_tag: "${IMAGE_TAG}",
+                        env_target: "homologation"
+                    ]
+                )
             }
         }
     }
 
     post {
         always {
-            echo "Pipeline finalizado para a branch: ${env.BRANCH_NAME}"
+            sh 'docker image prune -f'
         }
     }
 }
